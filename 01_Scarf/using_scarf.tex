@@ -1,22 +1,27 @@
 \documentclass{beamer}
 
 \usepackage{graphicx}
+\usetheme{Madrid}
 
 \title{
-\textsc{Scarf}\\
+\textsc{Scarf}
+}
+
+\subtitle[]{
 Guide to running simulations for DLS Spectroscopy
 }
 
-\author{
+\author[J D Elliott]{
 \footnotesize
 Joshua D Elliott
 }
 
-\institute{
+\institute[DLS Ltd.]{
 Diamond Light Source Ltd.
 }
 
-\date{
+\date[V0.1 2022]{
+\footnotesize
 Updated: \today
 }
 
@@ -26,17 +31,134 @@ Updated: \today
 
    \frame{
       \frametitle{Access to \textsc{Scarf}}
+      \footnotesize
 
-      \textbf{Login}:  ssh -Y fedid@ui1.scarf.rl.ac.uk\\ 
+      \begin{alertblock}{
+      \textbf{Login}:  ssh -Y fedid@ui1.scarf.rl.ac.uk} 
 
       \begin{itemize}
 
-         \item ssh: 
-         \item -Y
-         \item ui1.scarf.rl.ac.uk
+         \item ssh: secure shell, log in to a remote machine (scarf)
+         \item -Y: X11 forwarding, access graphical interfaces
+         \item fedid: Federal ID and username to access scarf
+         \item ui1.scarf.rl.ac.uk: host address
 
       \end{itemize}
 
+      \end{alertblock}
+   }
+
+   \frame{
+      \frametitle{Places on \textsc{Scarf}}
+      \footnotesize
+
+       \begin{center}
+          \begin{tabular}{l l l}
+             \textbf{Name} & \textbf{Location} & \textbf{Description} \\ \hline
+             Home & \$HOME & 80 GB, weekly back up\\
+             Scratch & /scratch/ & Area for simulations (not recommended, randomly purged)\\
+                          & /scratch21/ & Area for simulations (not recommended, randomly purged)\\
+             Work & /work4/dls/ & Area for simulations (recommended not backed up)\\ \hline
+       \end{tabular}
+       \end{center}
+   
+   }
+
+      \frame{
+      \frametitle{Useful Commands 1}
+      \framesubtitle{Bash}
+      \tiny
+
+       \begin{center}
+          \begin{tabular}{l l l l}
+             \textbf{Command} & \textbf{Description} \\ \hline
+             & & & \\
+             \textbf{Files} & & \textbf{Modules}\\
+             ls -ltrh                 & list directory, list format                            & module list & list loaded modules\\ 
+             cat                      & display contents of file                             & module avail & list available modules \\
+             cd                       & change to home directory                        & module load & load module \\
+             cd ../                   & change to upper directory                        & module purge & clear all loaded modules \\
+             cd /\emph{path}/ & change to specific directory path             & module show & display module information \\
+             cp.                      & copy file a to b                                         & & \\
+             cp -r                    & copy recursively a to b (folders)              & \textbf{Git} & \\
+             mkdir                  & make a directory                                      & git add                                      & add files/folders to committed \\
+             mv                      & move folder a to b                                    & git branch                                 & display all branches \\
+             rm                       & remove a file                                            & git checkout                             & checkout a branch \\ 
+             rm -r                   & remove recursively (deleting folders)       & git checkout -b                         & create a branch and checkout \\
+                                       &                                                                   & git clone                                   & clone a repository \\
+             \textbf{Batch Jobs} &                                                              & git commit -m                           & package changes\\
+             sbatch job.sh & submit job.sh to scheduler                            & git pull                                      & update local branch\\
+             squeue & display full queue                                                    & git push -{}-set-upstream origin & update remote branch\\
+             squeue -u scarfxxxx & display user xxxx queued jobs            & git status                                 & show changes  \\
+             scancel xxxxx & cancel job xxxxx & & \\
+       \end{tabular}
+       \end{center}
+   
+   }
+   
+   \frame{
+      \frametitle{Useful Commands 2}
+      \framesubtitle{vim}
+      
+   }
+   
+   \frame{
+   \frametitle{Getting Started with Quantum Espresso 1}
+   \framesubtitle{Steps to running Quantum Espresso on \textsc{Scarf} for the first time}
+   \tiny
+
+   \begin{alertblock}{Make directory for simulations}
+      Make a directory under work4 and create a symbolic link in home directory to access.
+      \begin{itemize}
+        \item cd /work4/dls
+        \item mkdir \$fedid
+        \item cd
+        \item ln -s /work4/dls/\$fedid .   
+      \end{itemize}      
+   \end{alertblock}
+   
+   \begin{alertblock}{Obtain example files}
+      Create a folder for example simulations and download the example files directly from the github repository.
+      \begin{itemize}
+         \item cd \$fedid
+         \item mkdir test
+         \item cd test
+         \item git clone https://github.com/jodaelliott/XSpectra-CONEXSworkshop2022.git
+         \item cd XSpectra-CONEXSworkshop2022
+      \end{itemize}
+   \end{alertblock}
+   
+   }
+   
+   \frame{
+   \frametitle{Getting Started with Quantum Espresso 2}
+   \framesubtitle{Steps to running Quantum Espresso on \textsc{Scarf} for the first time}
+   \tiny
+
+   \begin{alertblock}{Load modules for simulations and plotting}
+      Search and load Quantum Espresso (pw.x, xspectra.x) and xmgrace modules for simulations and plotting the results.
+      \begin{itemize}
+        \item module avail espresso
+        \item module load contrib/dls-spectroscopy/quantum-espresso/6.5-intel-18.0.3
+        \item module avail grace
+        \item module load xmgrace/5.1.25
+        \item module list   
+      \end{itemize}      
+   \end{alertblock}
+   
+   \begin{alertblock}{Run first calculations}
+      Execute diamond.scf.in and diamond.xspectra.in by editing job.sh file and using upf2core.sh script
+      \begin{itemize}
+         \item cd 01\_Diamond
+         \item sbatch job.sh
+         \item squeue -u scarfxxxx
+         \item vi job.sh; edit input=diamond.xspectra and mpirun command to xspectra.x
+         \item ../tools/upf2plotcore.sh ../pseudopotentials/C\_PBE\_TM\_2pj.UPF $>$ C.wfc
+         \item sbatch job.sh
+         \item xmgrace xanes.dat
+      \end{itemize}
+   \end{alertblock}
+   
    }
 
 \end{document}
