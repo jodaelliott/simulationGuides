@@ -1,0 +1,258 @@
+\documentclass{beamer}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usetheme{Madrid}
+
+%\setlength{\parskip}{\baselineskip}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\title{
+Quantum \textsc{Espresso}
+}
+
+\subtitle[]{
+Guide to running simulations for DLS Spectroscopy
+}
+
+\author[J D Elliott]{
+\footnotesize
+Joshua D Elliott
+}
+
+\institute[DLS Ltd.]{
+Diamond Light Source Ltd.
+}
+
+\date[V0.1 2022]{
+\footnotesize
+Updated: \today
+}
+
+%\begin{frame}
+%\footnotesize
+%\frametitle{}
+%\framesubtitle{}
+%\end{frame}
+
+%%% OUTLINE %%%
+
+% 1. Introduction to Quantum Espresso Code
+%    - Concept
+%    - Licence
+%    - Help
+%    - What Quantum Espresso is
+% 2. Density Functional Theory
+%    - QM with Density 
+%    - KS Equation
+%    - Self consistency cyle
+%    - Self consistency in the output
+%    - Representing quantities on a computer
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Introduction}
+
+\subsection{What is Quantum \textsc{Espresso}}
+
+\begin{frame}
+\footnotesize
+\frametitle{Quantum \textsc{Espresso}}
+\framesubtitle{opEn Source Package for Research in Electronic Structure
+Simulations and Optimization}
+\end{frame}
+
+\begin{frame}
+\footnotesize
+\frametitle{Open Source Software Package}
+
+
+
+\end{frame}
+
+
+\begin{frame}
+\footnotesize
+\frametitle{Where to get help?}
+
+\alert{\textbf{At Diamond}}:\\
+Email: joshua.elliott@diamond.ac.uk; Office: 1.12 Z02 (Ring); Ext:\\
+Email: mihai.duta@diamond.ac.uk (installation/compilation problems)\\~\\
+
+\textbf{Online}:\\
+Web-site: www.quantum-espresso.org\\~\\
+
+\textbf{Literature}:\\
+Journal of Physics: Condensed Matter 2009, 21 (39), 395502.\\
+Journal of Physics: Condensed Matter 2017, 29 (46), 465901.\\
+Journal of Chemical Physics 2020, 152 (15), 154105.\\~\\
+
+\textbf{Source Code}:\\
+Doc folder under quantum espresso distribution\\~\\
+
+\textbf{Mailing List}:\\
+Email: users@lists.quantum-espresso.org\\
+Archive of questions/issues dating back to 2011.\\
+Web-site: https://www.mail-archive.com/users@lists.quantum-espresso.org/
+\end{frame}
+
+\begin{frame}
+\footnotesize
+
+\frametitle{A Software Suite}
+
+Important: QE is not a single executable file, rather a collected distribution of several
+executable programs.\\
+
+\begin{center}
+\begin{minipage}{0.85\textwidth}
+\begin{tiny}
+\begin{itemize}
+   \item[\alert{PWscf}] Ground state electronic structure, structural optmiziation.
+   \item[CP] Carr-Parrinello molecular dynamics.
+   \item[PHonon] Linear-repsonse calculations.
+   \item[\alert{PostProc}] Post processing, graphs and visualization.
+   \item[PWneb] Nudged-Elastic Band driver from reaction paths.
+   \item[atomic] Generation of pseudopotentials.
+   \item[PWGui] Graphical User Interface for input.
+   \item[PWcond] Ballistic conductance calculations.
+   \item[\alert{XSpectra}] Core-level excitation spectra based on Fermi-Golden Rule.
+   \item[GWL] Quasiparticle and Exciton energies based on GW/BSE approximation.
+   \item[TD-DFPT] Time-dependent Density Functional Perturbation Theory.
+   \item[EPW] Electron-phonon coupling.
+   \item[HP] Automation of linear-response DFT+U parameters. 
+\end{itemize}
+\end{tiny}
+\end{minipage}
+\end{center}
+
+All these packages and others share: (i) installation method, (ii) input file format,
+(iii) pseudopotential file format, (iv) output format (v) source code.
+
+\end{frame}
+
+\section{Density Functional Theory - Theory}
+
+\begin{frame}
+\footnotesize
+\frametitle{Quantum mechanics in terms of the electron density}
+
+\onslide<1->{The total energy of the ground state of a system of electrons may be written as a
+functional of the electron density.}
+
+\begin{equation}
+\onslide<1->{E^\mathrm{DFT}[n]; \hspace{2cm} 
+\int n(\mathbf{r})\ \mathrm{d}\mathbf{r} = N; \hspace{2cm} 
+n(\mathbf{r}) \ge 0}
+\end{equation}
+
+\onslide<2->{We can prove mathmatically that the functional exists, but the form is unknown. Within
+Kohn-Sham formalism we write the functional:}
+
+\onslide<2->{
+\begin{equation}
+E^\mathrm{DFT}[n] = T_s[\{\psi_i\}] + E_\mathrm{ext}[n] + E_\mathrm{Hartree}[n] +
+E_{xc}[n] + E_\mathrm{ions}
+\end{equation}
+}
+
+\onslide<3->{Within the functional we introduced the set of single particle orbitals $\{\psi_i\}$,
+which are related to the density} 
+
+\onslide<3->{
+\begin{equation}
+n(\mathbf{r}) = \sum_i^M \vert \psi_i(\mathbf{r}) \vert^2
+\end{equation}
+}
+
+\onslide<4->{These are used to approximate the kinetic energy}
+\onslide<4->{
+\begin{equation}
+T_s[\{\psi_i\}] = -\frac{1}{2} \sum_i^N \int \mathrm{d}\mathbf{r}\ \psi_i^*(\mathbf{r})
+\nabla^2 \psi_i(\mathbf{r})
+\end{equation}
+}
+
+\end{frame}
+
+\begin{frame}
+\footnotesize
+\frametitle{Quantum mechanics in terms of the electron density}
+
+\onslide<1->{The other terms are functionals of the density:
+
+\begin{equation}
+E_\mathrm{ext}[n] = \int \mathrm{d}\mathbf{r}\ n(\mathbf{r})V_\mathrm{ext}(\mathbf{r}),
+\end{equation}
+
+\begin{equation}
+E_\mathrm{Hartree}[n] = \frac{1}{2} \int \mathrm{d}\mathbf{r} \mathrm{d}\mathbf{r}^\prime\
+\frac{n(\mathbf{r})n(\mathbf{r}^\prime)}{\vert \mathbf{r} - \mathbf{r}^\prime \vert},
+\end{equation}
+}
+
+\onslide<2->{The Ionic term is the pairwise interaction of the charged nuclei
+
+\begin{equation}
+E_\mathrm{ions} = \sum_{I,J\ne I} \frac{Z_I Z_J}{\vert \mathbf{R}_I - \mathbf{R}_J \vert}
+\end{equation}
+
+There difficulty with the approach lies in the exchange-correlation energy, whose form
+remains unknown.
+}
+
+\onslide<3->{
+Minimization of the functional derivitive of $E^\mathrm{DFT}$ with respect to the density
+$n$ gives
+
+\begin{equation}
+H^\mathrm{KS} \psi_i(\mathbf{r}) = 
+\left [ 
+-\frac{1}{2}\nabla^2 + V_\mathrm{ext}(\mathbf{r}) + V_\mathrm{Hartree}(\mathbf{r}) +
+V_{xc}(\mathbf{r}) 
+\right ] \psi_i(\mathbf{r}) = \varepsilon_i \psi_i(\mathbf{r})
+\end{equation}
+}
+\end{frame}
+
+\begin{frame}
+\footnotesize
+\frametitle{The Kohn-Sham Equations}
+
+\onslide<1->{
+\begin{equation}
+H^\mathrm{KS} \psi_i(\mathbf{r}) = 
+\left [ 
+-\frac{1}{2}\nabla^2 + V_\mathrm{ext}(\mathbf{r}) + V_\mathrm{Hartree}(\mathbf{r}) +
+V_{xc}(\mathbf{r}) 
+\right ] \psi_i(\mathbf{r}) = \varepsilon_i \psi_i(\mathbf{r})
+\end{equation}
+}
+
+\onslide<2->{
+\begin{tiny}
+\begin{equation}
+V_\mathrm{Hartree} = 
+\int \mathrm{d}\mathbf{r}^\prime\ 
+\frac{n(\mathbf{r}^\prime)}{\vert \mathbf{r} - \mathbf{r}^\prime \vert } 
+\end{equation}
+\begin{equation}
+V_{xc} = \frac{\delta E_{xc}}{\delta n}
+\end{equation}
+\end{tiny}
+}
+
+\end{frame}
+\end{document}
