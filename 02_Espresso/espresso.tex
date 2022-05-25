@@ -7,14 +7,13 @@
 
 \usetheme{Madrid}
 
-\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2cm, minimum
-height=1cm,text centered, text width=2cm, draw=black, fill=red!30]
-\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
-\tikzstyle{process} = [rectangle, minimum width=2cm, minimum height=1cm, text centered,
-draw=black, fill=orange!30, text width=3.5cm]
+\tikzstyle{startstop} = [rectangle, rounded corners, text centered, text width=2cm, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, text centered, draw=black, fill=orange!30, text width=2cm]
 \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered,
 draw=black, fill=green!30]
 \tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzstyle{line} = [thick, -]
 
 %\setlength{\parskip}{\baselineskip}
 
@@ -84,7 +83,42 @@ Updated: \today
 \frametitle{Quantum \textsc{Espresso}}
 \framesubtitle{opEn Source Package for Research in Electronic Structure
 Simulations and Optimization}
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.2cm]
+\node (start) [startstop]
+	{Start};
+\node (dft) [process, below of=start]
+	{DFT};
+\node (wfn) [io, below of=dft]
+	{$\vert \psi \rangle,\ \rho(\mathbf{r})$}; 
+\node (fgr) [process, below of=wfn]
+	{Fermi Golden Rule};
+\node (spectrum) [io, below of=fgr]
+	{Spectrum};
+\node (stop) [startstop, below of=spectrum]
+	{Stop} ;
+
+\node (backwfn) [right of=wfn, xshift=1cm]{};
+\node (backdft) [above of=backwfn]{};
+
+\draw [arrow] (start) -- (dft);
+\draw [arrow] (dft) -- (wfn);
+\draw [arrow] (wfn) -- (fgr);
+\draw [arrow] (fgr) -- (spectrum);
+\draw [arrow] (spectrum) -- (stop);
+
+\draw [arrow] (wfn) -- ++ (2cm,0)  |- node[text width=2cm, anchor=west]{Basis,\\ 1BZ,\\ Geometry} (dft);
+\draw [arrow] (spectrum) -- ++(2cm,0) |- node[text width=2cm, anchor=west]{1BZ,\\ Multipole, \\ Edge}(fgr);
+\draw [arrow] (spectrum) -- ++(-2cm,0) |- node[text width=1.4cm, anchor=east]{Core hole,\\ Absorber,}(dft);
+
+
+\end{tikzpicture}
+\end{center}
+
 \end{frame}
+
+
 
 \begin{frame}
 \footnotesize
